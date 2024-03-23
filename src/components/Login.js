@@ -9,19 +9,46 @@ const Login = () => {
   const { setJwtToken } = useOutletContext();
   const { setAlertClassName } = useOutletContext();
   const { setAlertMessage } = useOutletContext();
+  const { toggleRefresh } = useOutletContext();
 
   const navigate = useNavigate();
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (email === "admin@example.com") {
-      setJwtToken("abc");
-      setAlertMessage("");
-      setAlertClassName("d-none");
-      navigate("/");
-    } else {
-      setAlertClassName("alert-danger");
-      setAlertMessage("Invalid credentials");
-    }
+
+    // build the request payload
+    let payload = {
+      email: email,
+      password: password,
+    };
+
+    const requestOption = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    };
+
+    fetch(`authenticate`, requestOption)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          setAlertClassName("alert-danger");
+          setAlertMessage(data.message);
+        } else {
+          setJwtToken(data.access_token);
+          setAlertClassName("d-none");
+          setAlertMessage("");
+          toggleRefresh(true);
+          navigate("/");
+        }
+      })
+      .catch((error) => {
+        setAlertClassName("alert-danger");
+        setAlertMessage(error);
+      });
   };
   return (
     <div className="col-md-6 offset-md-3">
@@ -33,7 +60,7 @@ const Login = () => {
           type="email"
           className="form-control"
           name="email"
-          autocomplete="email-new"
+          autoComplete="email-new"
           onChange={(event) => setEmail(event.target.value)}
         />
 
@@ -41,8 +68,8 @@ const Login = () => {
           title="Password"
           type="password"
           className="form-control"
-          name="email"
-          autocomplete="email-new"
+          name="password"
+          autoComplete="email-new"
           onChange={(event) => setPassword(event.target.value)}
         />
         <hr />

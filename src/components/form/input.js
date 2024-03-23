@@ -12,7 +12,7 @@ const Input = forwardRef((props, ref) => {
         id={props.name}
         placeholder={props.placeholder}
         onChange={props.onChange}
-        autocomplete={props.autocomplete}
+        autoComplete={props.autocomplete}
         value={props.value}
       />
       <div className={props.errorDiv}>{props.ErrorMsg}</div>
